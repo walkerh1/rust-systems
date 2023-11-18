@@ -1,0 +1,9 @@
+- base-n numbers
+- bit manipulation
+- interger overflow
+- how signed integers work (twos complement)
+- how floating points are represented
+- memory bugs (and how rust prevents them)
+- what is meant by "random access"
+- stack and heap
+- data races and race conditions

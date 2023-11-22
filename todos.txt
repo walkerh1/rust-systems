@@ -4,6 +4,8 @@
 - how signed integers work (twos complement)
 - how floating points are represented
 - memory bugs (and how rust prevents them)
-- what is meant by "random access"
-- stack and heap
+- what is meant by "random access"?
+- stack and heap (and static) memory
+- system calls
+- implement malloc
 - data races and race conditions

@@ -3,7 +3,7 @@
 use std::mem::transmute;
 
 fn main() {
-    endianness();
+    floating_point_deconstruction(3.141529);
 }
 
 // Data type determines what value a sequence of bits represents:
@@ -33,10 +33,13 @@ fn f32_as_u32() {
     assert_eq!(a, c);
 }
 
-// Signed integers (i8, i32, i64) are handled internally using TWOS
-// COMPLEMENT: a method for encoding bit patterns as negative numbers without
-// requiring an explicit sign bit. Get the negation of a signed int by taking
-// its ones complement (i.e. flipping every bit), then incrementing.
+// Signed integers (i8, i16, i32, i64) are represented internally using TWOS
+// COMPLEMENT: a method for encoding bit patterns as negative integers without
+// requiring an explicit sign bit. To get the negation of a signed int take
+// its ones complement (i.e. flip every bit) then increment. Another property of
+// twos complement is that the first bit of a negative number is always set
+// (even though it is not an explicit sign bit). This can be useful way of quickly
+// testing whether a bit pattern represents a negative or positive integer.
 fn twos_complement() {
     let a: i32 = 50513;
     let neg_a = !a + 1;
@@ -90,7 +93,51 @@ fn int_overflow() {
 // Most modern systems are little endian.
 fn endianness() {
     let c: u32 = 0xAABBCCDD;
-    println!("AA BB CC DD");
+    println!("big end -> AA BB CC DD <- little end");
     println!("big endian:    {:?}", c.to_be_bytes());
     println!("little endian: {:?}", c.to_le_bytes());
+}
+
+// When represented in scientific notation FLOATING POINT NUMBERS, like 2.498 x 10^18
+// have 4 components: the SIGN, which indicate whether it is positive or
+// negative; the MANTISSA, which is the value (here 2.498); the RADIX, which is the
+// base (here 10); and the EXPONENT, which is the value that the RADIX is raised to
+// (here 18). In a system floating points can then be represented as a container with
+// 3 fields: a sign bit, a mantissa, and an exponent (radix is always 2, so need to encode
+// that). For an f32, the first bit is the sign bit, the subsequent 8 bits represent the
+// exponent, and the remaining 23 bits represent the mantissa.
+fn floating_point_deconstruction(n: f32) {
+    // reinterpret f32 as 32 bits
+    let n_bits: u32 = n.to_bits();
+
+    // separate 32 bits of f32 into its components:
+    let sign_ = (n_bits >> 31) & 1;         // shift 31 bits then 1-bit AND mask
+    let exponent_ = (n_bits >> 23) & 0xff;  // shift 23 bits then 8-bit AND mask
+    let fraction = n_bits & 0x7ffffff;      // 23-bit AND mask
+
+    // decode sign bit by mapping 0 to -1.0 and 1 to 1.0
+    let sign = (-1.0_f32).powf(sign_ as f32);
+    
+    // decode exponent by subtracting the bias and raising it to the power of
+    // the radix, which is 2.
+    let exponent = (exponent_ as i32) - 127;
+    let exponent = 2_f32.powf(exponent as f32);
+    
+    // decode the mantissa by multiplying each bit by its weight and summing the result;
+    // the first bit's weight is 2^-1, the second 2^-2, and so on up to 2^-23.
+    let mut mantissa: f32 = 1.0;
+    for i in 0..23 {
+        let mask = 1 << i;
+        let one_at_bit_i = fraction & mask;
+        if one_at_bit_i != 0 {
+            let i_ = i as f32;
+            let weight = 2_f32.powf(i_ - 23.0);
+            mantissa += weight;
+        }
+    }
+
+    println!("field    | as bits   | as real number");
+    println!("sign     | {:01b}         | {}", sign_, sign);
+    println!("exponent | {:08b}  | {}", exponent_, exponent);
+    println!("mantissa | {:023b} | {}", fraction, mantissa);
 }

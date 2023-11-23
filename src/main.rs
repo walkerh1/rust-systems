@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_imports)]
+#![allow(dead_code, unused_imports, invalid_nan_comparisons)]
 
 use std::mem::transmute;
 
@@ -99,11 +99,11 @@ fn endianness() {
 }
 
 // When represented in scientific notation FLOATING POINT NUMBERS, like 2.498 x 10^18
-// have 4 components: the SIGN, which indicate whether it is positive or
+// have 4 components: the SIGN, which indicates whether it is positive or
 // negative; the MANTISSA, which is the value (here 2.498); the RADIX, which is the
 // base (here 10); and the EXPONENT, which is the value that the RADIX is raised to
-// (here 18). In a system floating points can then be represented as a container with
-// 3 fields: a sign bit, a mantissa, and an exponent (radix is always 2, so need to encode
+// (here 18). So in a system floating points can be represented as a container with
+// 3 fields: a sign bit, a mantissa, and an exponent (radix is always 2, so no need to encode
 // that). For an f32, the first bit is the sign bit, the subsequent 8 bits represent the
 // exponent, and the remaining 23 bits represent the mantissa.
 fn floating_point_deconstruction(n: f32) {
@@ -140,4 +140,17 @@ fn floating_point_deconstruction(n: f32) {
     println!("sign     | {:01b}         | {}", sign_, sign);
     println!("exponent | {:08b}  | {}", exponent_, exponent);
     println!("mantissa | {:023b} | {}", fraction, mantissa);
+
+    // In Rust, f64 and f32 only implement the PartialEq trait and not
+    // Eq as they include values for which == is not mathematically valid:
+    // some f32/f64s with different bit patterns are treated as equal:
+    let m: f32 = -0.0;
+    let n: f32 = 0.0;
+    assert!(m == n);
+    println!("\nFor f32:\n{:032b} == {:032b}", m.to_bits(), n.to_bits());
+    // and some with the same bit pattern are treated as unequal:
+    assert!(f32::NAN != f32::NAN);
+    println!("{:032b} != {:032b}", f32::NAN.to_bits(), f32::NAN.to_bits())
+    // (though many different bit patterns count as NAN, no two NANs are
+    // ever equal, even if they really do have the same bit pattern.)
 }

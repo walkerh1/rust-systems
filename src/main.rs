@@ -1,7 +1,9 @@
-#![allow(dead_code)]
+#![allow(dead_code, unused_imports)]
+
+use std::mem::transmute;
 
 fn main() {
-    int_overflow();
+    endianness();
 }
 
 // Data type determines what value a sequence of bits represents:
@@ -31,7 +33,7 @@ fn f32_as_u32() {
     assert_eq!(a, c);
 }
 
-// Signed integers (i8, i32, i64) are internally represented using TWOS
+// Signed integers (i8, i32, i64) are handled internally using TWOS
 // COMPLEMENT: a method for encoding bit patterns as negative numbers without
 // requiring an explicit sign bit. Get the negation of a signed int by taking
 // its ones complement (i.e. flipping every bit), then incrementing.
@@ -74,7 +76,21 @@ fn int_overflow() {
     println!("{} + 1 = {}", b, b + 1);
 }
 
-// 
+// ENDIANNESS refers to the order in which systems represent multibyte sequences
+// in memory. Little endian means multibyte sequences are stored from least
+// to most significant (that is, the little end of the sequence is stored first).
+// Big endian means storing them from most to least significant.
+//
+// Suppose we wanted to store a 4-byte sequence, AA BB CC DD, in byte-addressed
+// memory beginning at address 100. In a little endian system we'd do this by putting
+// DD at address 100, CC at address 101, BB at address 102, AA at address 103. In a
+// big endian system we would store the 4 bytes in the reverse order, with the AA at
+// address 100, BB at address 101, and so on.
+//
+// Most modern systems are little endian.
 fn endianness() {
-
+    let c: u32 = 0xAABBCCDD;
+    println!("AA BB CC DD");
+    println!("big endian:    {:?}", c.to_be_bytes());
+    println!("little endian: {:?}", c.to_le_bytes());
 }

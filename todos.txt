@@ -6,4 +6,5 @@
 - stack and heap (and static) memory
 - system calls
 - implement malloc
+- build a cpu emulator (CHIP-8 or 8080)
 - data races and race conditions

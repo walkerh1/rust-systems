@@ -1,6 +1,6 @@
 // Hierarchy of kinds of pointer (from simpler to more sophisticated):
 // 1. A MEMORY ADDRESS, or just ADDRESS, is a number of size usize (typically 64 bits)
-//    that happens to refer to a single byte in memory.
+//    that is interpreted as referring to a single byte in memory.
 // 2. A RAW POINTER, or just POINTER, is a memory address that points to a value of
 //    some type.
 // 3. A REFERENCE is a raw pointer (or in the case of dynamically sized types, a pointer
@@ -28,15 +28,15 @@ pub fn references_and_memory() {
     println!();
     
     println!("b (a reference to B):");
-    println!("  location: {:p}", &b);
-    println!("  size:     {:?} bytes", size_of::<&[u8; 10]>());
-    println!("  value:    {:?}", b);
+    println!("  location:  {:p}", &b);
+    println!("  size:      {:?} bytes", size_of::<&[u8; 10]>());
+    println!("  points to: {:p}", b);
     println!();
    
     println!("c (a 'box' for C):");
-    println!("  location: {:p}", &c);
-    println!("  size:     {:?} bytes", size_of::<Box<[u8]>>());
-    println!("  value:    {:?}", c);
+    println!("  location:  {:p}", &c);
+    println!("  size:      {:?} bytes", size_of::<Box<[u8]>>());
+    println!("  points to: {:p}", c);
     println!();
     
     println!("B (an array of 10 bytes):");
@@ -49,4 +49,29 @@ pub fn references_and_memory() {
     println!("  location: {:p}", &C);
     println!("  size:     {:?} bytes", size_of::<[u8; 11]>());
     println!("  value:    {:?}", C);
+}
+
+// RAW POINTERS
+// The difference between immutable raw pointers (*const T) and mutable ones (*mut T)
+// is really just for the developer (each can easily be cast to the other). Also, rust
+// references compile down to raw pointers, so you often get the performance advantages
+// of raw pointers without having to use them (and go unsafe).
+//
+// From the compiler's perspective, a raw pointer to a value in memory always points
+// to where the first byte of that value is stored, and it always knows the type of the
+// value, meaning it knows its size (i.e. the number of bytes of memory after the start
+// address the value uses up).
+//
+// The process of fetching data from RAM via a pointer is called dereferencing a pointer.
+//
+pub fn raw_pointers() {
+    let a: i64 = 42;
+    
+    // turn a reference into a raw pointer
+    let a_ptr = &a as *const i64; 
+    
+    // turn a raw pointer into an address
+    let a_addr: usize = unsafe { std::mem::transmute(a_ptr) };
+    
+    println!("a: {} ({:p}...0x{:x})", a, a_ptr, a_addr + 7);
 }

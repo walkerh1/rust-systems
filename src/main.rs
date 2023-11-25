@@ -1,9 +1,9 @@
-use memory::references_and_memory;
+use memory::raw_pointers;
 
 pub mod bits;
 pub mod cpu;
 pub mod memory;
 
 fn main() {
-    references_and_memory();
+    raw_pointers();
 }

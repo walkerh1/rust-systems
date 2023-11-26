@@ -1,10 +1,12 @@
-- base-n numbers
-- bit manipulation
-- how floating points are represented
-- memory bugs (and how rust prevents them)
+- bits, nibbles, bytes and bases
+- integer representation (twos complement and integer overflow)
+- decimal number representation (floating point and fixed point)
+- typical memory bugs (and how rust prevents them)
 - what is meant by "random access"?
-- stack and heap (and static) memory
+- how memory is laid out:
+  - stack vs heap
+  - static
+  - why stack faster than the heap
 - system calls
-- implement malloc
+  - implement malloc
 - build a cpu emulator (CHIP-8 or 8080)
-- data races and race conditions

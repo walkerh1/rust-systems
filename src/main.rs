@@ -1,9 +1,9 @@
-use memory::raw_pointers;
+use memory::stack_and_heap;
 
 pub mod bits;
 pub mod cpu;
 pub mod memory;
 
 fn main() {
-    raw_pointers();
+    stack_and_heap();
 }

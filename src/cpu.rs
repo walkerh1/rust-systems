@@ -25,18 +25,18 @@ impl CPU {
             self.position_in_memory += 2;
 
             let c = ((opcode & 0xF000) >> 12) as u8;
-            let x = ((opcode & 0x0F00) >>  8) as u8;
-            let y = ((opcode & 0x00F0) >>  4) as u8;
-            let d = ((opcode & 0x000F) >>  0) as u8;
+            let x = ((opcode & 0x0F00) >> 8) as u8;
+            let y = ((opcode & 0x00F0) >> 4) as u8;
+            let d = ((opcode & 0x000F) >> 0) as u8;
 
             let nnn = opcode & 0x0FFF;
 
             match (c, x, y, d) {
-                (  0,   0,   0,   0) => break,
-                (  0,   0, 0xE, 0xE) => self.ret(),
-                (0x2,   _,   _,   _) => self.call(nnn),
-                (0x8,   _,   _, 0x4) => self.add_xy(x, y),
-                _ => todo!()
+                (0, 0, 0, 0) => break,
+                (0, 0, 0xE, 0xE) => self.ret(),
+                (0x2, _, _, _) => self.call(nnn),
+                (0x8, _, _, 0x4) => self.add_xy(x, y),
+                _ => todo!(),
             }
         }
     }
@@ -44,8 +44,8 @@ impl CPU {
     fn read_opcode(&self) -> u16 {
         let p = self.position_in_memory;
         let op_byte1 = self.memory[p] as u16;
-        let op_byte2 = self.memory[p+1] as u16;
-        
+        let op_byte2 = self.memory[p + 1] as u16;
+
         op_byte1 << 8 | op_byte2
     }
 
@@ -77,7 +77,7 @@ impl CPU {
         let arg2 = self.registers[y as usize];
 
         let (val, overflow) = arg1.overflowing_add(arg2);
-        
+
         self.registers[x as usize] = val;
 
         if overflow {
@@ -96,13 +96,19 @@ pub fn example() {
     cpu.registers[1] = 10;
 
     let mem = &mut cpu.memory;
-    mem[0x000] = 0x21; mem[0x001] = 0x00;
-    mem[0x002] = 0x21; mem[0x003] = 0x00;
-    mem[0x004] = 0x00; mem[0x005] = 0x00;
+    mem[0x000] = 0x21;
+    mem[0x001] = 0x00;
+    mem[0x002] = 0x21;
+    mem[0x003] = 0x00;
+    mem[0x004] = 0x00;
+    mem[0x005] = 0x00;
 
-    mem[0x100] = 0x80; mem[0x101] = 0x14;
-    mem[0x102] = 0x80; mem[0x103] = 0x14;
-    mem[0x104] = 0x00; mem[0x105] = 0xEE;
+    mem[0x100] = 0x80;
+    mem[0x101] = 0x14;
+    mem[0x102] = 0x80;
+    mem[0x103] = 0x14;
+    mem[0x104] = 0x00;
+    mem[0x105] = 0xEE;
 
     cpu.run();
 

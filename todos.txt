@@ -9,4 +9,6 @@
   - why stack faster than the heap
 - system calls
   - implement malloc
+- implement garbage collector
 - build a cpu emulator (CHIP-8 or 8080)
+- race condition vs data race
